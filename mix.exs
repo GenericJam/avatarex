@@ -30,7 +30,7 @@ defmodule Avatarex.MixProject do
   defp deps do
     [
       # For fast, multi-threaded, pipelined image processing
-      {:image, "~> 0.31.1"},
+      {:image, ">= 0.55"},
 
       # For release management
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
