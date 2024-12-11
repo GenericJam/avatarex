@@ -3,45 +3,64 @@ defmodule AvatarexTest do
 
   Logger.configure(level: :warn)
 
-  alias Avatarex.Sets.{Birdy, Kitty}
-  
+  alias Avatarex.Sets.{Birdy, BotBlue, Kitty, Monster, Robot}
+
   doctest Avatarex
 
   setup_all do
     [
-      renders_path: Path.join(File.cwd!, "priv/renders")
+      renders_path: Path.join(File.cwd!(), "priv/renders")
     ]
   end
 
   sets = [
     birdy: %{set: Birdy, layers: ~w[body hoop tail wing eyes bec accessorie]},
+    bot_blue: %{set: BotBlue, layers: ~w[body face eyes mouth accessory]},
     kitty: %{set: Kitty, layers: ~w[body eye fur mouth accessorie]},
+    monster: %{set: Monster, layers: ~w[body_color body face_color face eyes mouth nose]},
+    robot: %{set: Robot, layers: ~w[wave face eyes mouth nose eyebrows antenna]}
   ]
 
   for {name, %{set: set, layers: layers}} <- sets do
-
     test "generates #{name} avatar", context do
       avatar_random = Avatarex.random(unquote(set), unquote(name), context[:renders_path])
-      avatar_named = Avatarex.generate("test_#{unquote(name)}",
-                                  unquote(set), unquote(name), context[:renders_path])
+
+      avatar_named =
+        Avatarex.generate(
+          "test_#{unquote(name)}",
+          unquote(set),
+          unquote(name),
+          context[:renders_path]
+        )
+
       assert avatar_named.name == "test_#{unquote(name)}"
       assert is_integer(avatar_random.name)
+
       for avatar <- [avatar_random, avatar_named] do
         assert avatar.image == nil
         assert avatar.set == unquote(name)
         assert avatar.renders_path == context[:renders_path]
+
         for {layer, path} <- avatar.images do
           assert Enum.member?(unquote(layers), layer)
           assert path =~ "priv/sets/#{unquote(name)}/#{layer}/#{layer}_"
         end
+
         assert Enum.count(avatar.images) == Enum.count(unquote(layers))
       end
     end
 
     test "renders generated #{name} avatar", context do
       avatar_random = Avatarex.random(unquote(set), unquote(name), context[:renders_path])
-      avatar_named = Avatarex.generate("test_#{unquote(name)}",
-                                  unquote(set), unquote(name), context[:renders_path])
+
+      avatar_named =
+        Avatarex.generate(
+          "test_#{unquote(name)}",
+          unquote(set),
+          unquote(name),
+          context[:renders_path]
+        )
+
       for avatar <- [avatar_random, avatar_named] do
         rendered = Avatarex.render(avatar)
         assert %Vix.Vips.Image{} = rendered.image
@@ -50,8 +69,15 @@ defmodule AvatarexTest do
 
     test "renders ungenerated #{name} avatar", context do
       rendered_random = Avatarex.render(unquote(set), unquote(name), context[:renders_path])
-      rendered_named = Avatarex.render("test_#{unquote(name)}",
-                                  unquote(set), unquote(name), context[:renders_path])
+
+      rendered_named =
+        Avatarex.render(
+          "test_#{unquote(name)}",
+          unquote(set),
+          unquote(name),
+          context[:renders_path]
+        )
+
       for rendered <- [rendered_random, rendered_named] do
         assert %Vix.Vips.Image{} = rendered.image
       end
@@ -59,8 +85,15 @@ defmodule AvatarexTest do
 
     test "writes #{name} avatar", context do
       avatar_random = Avatarex.random(unquote(set), unquote(name), context[:renders_path])
-      avatar_named = Avatarex.generate("test_#{unquote(name)}",
-                                  unquote(set), unquote(name), context[:renders_path])
+
+      avatar_named =
+        Avatarex.generate(
+          "test_#{unquote(name)}",
+          unquote(set),
+          unquote(name),
+          context[:renders_path]
+        )
+
       for rendered <- [avatar_random, avatar_named] do
         file_name = "#{rendered.name}_#{unquote(name)}.png"
         renders_path = context[:renders_path]
